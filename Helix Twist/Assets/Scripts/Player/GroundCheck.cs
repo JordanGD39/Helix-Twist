@@ -10,11 +10,15 @@ public class GroundCheck : MonoBehaviour
     public bool Grounded { get { return grounded; } }
 
     private PlayerSwipe playerSwipe;
+    private PlayerCollision playerCol;
+    private PlayerScore playerScore;
 
     // Start is called before the first frame update
     void Start()
     {
         playerSwipe = GetComponent<PlayerSwipe>();
+        playerScore = GetComponent<PlayerScore>();
+        playerCol = GetComponent<PlayerCollision>();
     }
 
     // Update is called once per frame
@@ -22,10 +26,19 @@ public class GroundCheck : MonoBehaviour
     {
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, 0.2f, layerMask))
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, raycastLength, layerMask))
         {
-            grounded = true;
-            playerSwipe.ResetSwipe();
+            if (!hit.collider.isTrigger)
+            {
+                if (!grounded)
+                {
+                    playerCol.CheckDestroyParts(hit.collider);
+                }
+
+                grounded = true;
+                playerSwipe.ResetSwipe();                
+                playerScore.ResetCombo();
+            }
         }
         else
         {
