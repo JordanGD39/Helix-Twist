@@ -16,22 +16,20 @@ public class PlayerScore : MonoBehaviour
     private float lastYposWhenEarningPoint;
 
     private List<GameObject> points = new List<GameObject>();
+    public List<GameObject> PointParts { get { return points; } }
 
     private void Start()
     {
         lastYposWhenEarningPoint = transform.position.y;
         playerSwipe = GetComponent<PlayerSwipe>();
         ui = FindObjectOfType<HUD>();
+        score = GameManager.instance.SavedScore;
+        ui.UpdateScore(score);
     }
 
     public void AddPoints()
     {
         points.AddRange(GameObject.FindGameObjectsWithTag("Point"));
-    }
-
-    public void ResetLevel()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void ResetCombo()
@@ -48,15 +46,16 @@ public class PlayerScore : MonoBehaviour
 
         GameObject potentialPoint = other.transform.parent.parent.parent.gameObject;
 
-        if (potentialPoint.gameObject.CompareTag("Point") && points.Contains(potentialPoint))
+        if (potentialPoint.gameObject.CompareTag("Point") && points.Contains(potentialPoint) && transform.position.y < other.transform.position.y)
         {
-            if (comboCounter > 1 && lastYposWhenEarningPoint - transform.position.y < 1)
+            if (comboCounter >= 1 && lastYposWhenEarningPoint - transform.position.y < 1)
             {
+                //Debug.Log("Points too close! My Y: " + transform.position.y + " last point Y: " + lastYposWhenEarningPoint);
                 return;
             }
 
+            //Debug.Log("Points far enough! my Y: " + transform.position.y + " last point Y: " + lastYposWhenEarningPoint + " calc: " + (lastYposWhenEarningPoint - transform.position.y));
             lastYposWhenEarningPoint = transform.position.y;
-            //Debug.Log(potentialPoint);
             points.Remove(potentialPoint);
             comboCounter++;            
             score += comboCounter;

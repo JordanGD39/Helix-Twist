@@ -8,6 +8,10 @@ public class PlayerCollision: MonoBehaviour
     private PlayerScore playerScore;
     private GroundCheck groundCheck;
     private Transform partsParent;
+    private ParticleSystem ps;
+    private MeshRenderer meshRenderer;
+    private TrailRenderer trail;
+    private HUD ui;
 
     [SerializeField] private LayerMask layerMask;
     [SerializeField] private float bounceForce = 100;
@@ -22,9 +26,21 @@ public class PlayerCollision: MonoBehaviour
     {
         startPos = transform.position;
         rb = GetComponent<Rigidbody>();
+        ui = FindObjectOfType<HUD>();
         playerScore = GetComponent<PlayerScore>();
         groundCheck = GetComponent<GroundCheck>();
         partsParent = FindObjectOfType<LevelMaker>().transform;
+        meshRenderer = GetComponentInChildren<MeshRenderer>();
+        ps = GetComponentInChildren<ParticleSystem>();
+        ParticleSystem.MainModule main = ps.main;
+
+        Color playerColor = meshRenderer.material.color;
+
+        main.startColor = playerColor;
+        trail = GetComponentInChildren<TrailRenderer>();
+        trail.startColor = playerColor;
+        playerColor.a = 0;
+        trail.endColor = playerColor;
     }
 
     public void CheckDestroyParts(Collider collider)
@@ -66,7 +82,18 @@ public class PlayerCollision: MonoBehaviour
 
             for (int i = 0; i < parts.Length; i++)
             {
-                parts[i].GetComponentInParent<DestructiblePart>().DestroyPart();
+                if (!parts[i].isTrigger)
+                {
+                    DestructiblePart destructiblePart = parts[i].GetComponentInParent<DestructiblePart>();
+                    destructiblePart.DestroyPart();
+
+                    GameObject twoPart = destructiblePart.transform.parent.gameObject;
+
+                    if (!playerScore.PointParts.Contains(twoPart))
+                    {
+                        playerScore.PointParts.Add(twoPart);
+                    }
+                }
             }
 
             //partsToDestroy = 5;
@@ -109,6 +136,7 @@ public class PlayerCollision: MonoBehaviour
 
             rb.velocity = Vector3.zero;
             rb.AddForce(Vector3.up * bounceForce);
+            playerScore.ResetCombo();
         }
     }
 
@@ -121,22 +149,32 @@ public class PlayerCollision: MonoBehaviour
                 Vector3 dirToPlayer = transform.position - collision.transform.position;
                 dirToPlayer.Normalize();
 
-                Debug.Log("Direction to player: " + dirToPlayer);
+                //Debug.Log("Direction to player: " + dirToPlayer);
 
                 if (playerScore.ComboCounter > 1 && dirToPlayer.y > 0)
                 {
                     return;
                 }
-                
-                playerScore.ResetLevel();
+
+                meshRenderer.enabled = false;
+                trail.gameObject.SetActive(false);
+                rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+                rb.isKinematic = true;
+                ps.Play();
+                Invoke("Die", 2);
             }
 
             //rb.AddForce(collision.contacts[0].normal * bounceForce);
         }
         else if (collision.gameObject.CompareTag("End"))
         {
-            GameManager.instance.NextLevel(playerScore.Score);
+            ui.StartFade(false);
         }
+    }
+
+    private void Die()
+    {
+        ui.StartFade(true);
     }
 
     private bool CheckInRange(int index, int spiral)

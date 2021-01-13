@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class LevelMaker : MonoBehaviour
 {
-    [SerializeField] private int partsToRemovePerSpiral = 3;
-    [SerializeField] private int deadlyPartsPerSpiral = 1;
     [SerializeField] private Material deathMat;
 
     // Start is called before the first frame update
@@ -22,6 +20,8 @@ public class LevelMaker : MonoBehaviour
                 availableParts.Add(spiral.GetChild(j));
             }
 
+            int partsToRemovePerSpiral = GameManager.instance.PartsToRemovePerSpiral;
+
             for (int j = 0; j < partsToRemovePerSpiral; j++)
             {
                 int rand = Random.Range(0, availableParts.Count);
@@ -33,15 +33,20 @@ public class LevelMaker : MonoBehaviour
                 availableParts.Remove(randPart);
             }
 
-            for (int j = 0; j < deadlyPartsPerSpiral; j++)
+            if (i != 0)
             {
-                int rand = Random.Range(0, availableParts.Count);
+                int deadlyPartsPerSpiral = GameManager.instance.DeathPartsPerSpiral;
 
-                Transform randPart = availableParts[rand];
-                
-                ChangeMaterialToDeath(randPart.GetChild(0).GetComponentInChildren<MeshRenderer>());
-                ChangeMaterialToDeath(randPart.GetChild(1).GetComponentInChildren<MeshRenderer>());
-            }
+                for (int j = 0; j < deadlyPartsPerSpiral; j++)
+                {
+                    int rand = Random.Range(0, availableParts.Count);
+
+                    Transform randPart = availableParts[rand];
+
+                    ChangeMaterialToDeath(randPart.GetChild(0).GetComponentInChildren<MeshRenderer>());
+                    ChangeMaterialToDeath(randPart.GetChild(1).GetComponentInChildren<MeshRenderer>());
+                }
+            }            
         }
 
         FindObjectOfType<PlayerScore>().AddPoints();

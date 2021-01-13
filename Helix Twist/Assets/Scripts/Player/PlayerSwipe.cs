@@ -12,11 +12,13 @@ public class PlayerSwipe : MonoBehaviour
     private Vector3 diff;
 
     private Camera cam;
+    private HUD ui;
    
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        ui = FindObjectOfType<HUD>();
 
         cam = Camera.main;
     }
@@ -39,9 +41,9 @@ public class PlayerSwipe : MonoBehaviour
 
     private void CheckSwipe()
     {
-        if (canSwipe && Input.GetMouseButton(0))
+        if (canSwipe && Input.GetMouseButton(0) /*Input.touchCount > 0*/)
         {
-            Vector2 mousePos = Input.mousePosition;
+            Vector2 mousePos = Input.mousePosition;/*Input.GetTouch(0).position*/
 
             if (firstTouch)
             {
@@ -57,6 +59,11 @@ public class PlayerSwipe : MonoBehaviour
 
             if (diff.magnitude > 0.3f)
             {
+                if (ui.LevelPanel.activeSelf)
+                {
+                    ui.RemoveStartPanel();                    
+                }
+
                 float y = diff.y;
 
                 diff = cam.transform.TransformVector(diff);

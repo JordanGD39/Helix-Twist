@@ -234,6 +234,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1561450537462823915}
   - component: {fileID: 7189915436797507352}
+  - component: {fileID: 8277219387908894381}
   m_Layer: 0
   m_Name: Part
   m_TagString: Untagged
@@ -269,6 +270,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   part: {fileID: 8729035859323634745}
+--- !u!205 &8277219387908894381
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561450537462823916}
+  serializedVersion: 2
+  m_LocalReferencePoint: {x: 0.987757, y: -0.14021543, z: -0.2317224}
+  m_Size: 1.0244874
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.046204235
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 4746109219210426747}
+    - renderer: {fileID: 6288406567535660247}
+    - renderer: {fileID: 438183922841938648}
+    - renderer: {fileID: 5277142091788087110}
+    - renderer: {fileID: 7237411126174459448}
+    - renderer: {fileID: 7375409365330179781}
+    - renderer: {fileID: 1732224735803795188}
+    - renderer: {fileID: 1003696382554827552}
+    - renderer: {fileID: 2073158069436932117}
+  m_Enabled: 1
 --- !u!1 &1785575882082093499
 GameObject:
   m_ObjectHideFlags: 0

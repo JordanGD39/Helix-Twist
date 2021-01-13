@@ -12,6 +12,11 @@ public class CameraFollow : MonoBehaviour
     void Start()
     {
         towerPos = GameObject.FindGameObjectWithTag("Tower").transform.position;
+
+        if (GameManager.instance.BgColor.a != 0)
+        {
+            GetComponent<Camera>().backgroundColor = GameManager.instance.BgColor;
+        }
     }
 
     // Update is called once per frame

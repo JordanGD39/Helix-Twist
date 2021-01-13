@@ -18,11 +18,16 @@ public class DestructiblePart : MonoBehaviour
 
     public void DestroyPart()
     {
+        transform.parent.tag = "Point";
+
         for (int i = 0; i < part.childCount; i++)
         {
             if (i == 0)
             {
-                part.GetChild(0).gameObject.SetActive(false);
+                Transform partChild = part.GetChild(0);
+
+                partChild.GetComponent<MeshCollider>().isTrigger = true;
+                partChild.GetComponent<MeshRenderer>().enabled = false;
             }
             else
             {

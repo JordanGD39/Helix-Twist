@@ -16,7 +16,10 @@ public class DestroyAllParts : MonoBehaviour
     {
         for (int i = 0; i < parts.Length; i++)
         {
-            parts[i].DestroyPart();
+            if (!parts[i].transform.parent.CompareTag("Point"))
+            {
+                parts[i].DestroyPart();
+            }            
         }
     }
 }
