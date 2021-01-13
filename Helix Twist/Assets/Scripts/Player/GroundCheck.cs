@@ -5,7 +5,9 @@ using UnityEngine;
 public class GroundCheck : MonoBehaviour
 {
     [SerializeField] private bool grounded = false;
-    [SerializeField] private float raycastLength = 0.2f;
+    [SerializeField] private float checkRadius = 0.5f;
+    [SerializeField] private float spherecastLength = 0.2f;
+    [SerializeField] private Vector3 extraPos;
     [SerializeField] private LayerMask layerMask;
     public bool Grounded { get { return grounded; } }
 
@@ -26,7 +28,7 @@ public class GroundCheck : MonoBehaviour
     {
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, raycastLength, layerMask))
+        if (Physics.SphereCast(transform.position + extraPos, checkRadius, Vector3.down, out hit, spherecastLength, layerMask))
         {
             if (!hit.collider.isTrigger)
             {
@@ -44,5 +46,11 @@ public class GroundCheck : MonoBehaviour
         {
             grounded = false;
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position + extraPos, checkRadius);
     }
 }

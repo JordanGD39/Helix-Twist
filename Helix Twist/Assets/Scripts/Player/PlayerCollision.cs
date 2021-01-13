@@ -6,11 +6,16 @@ public class PlayerCollision: MonoBehaviour
 {
     private Rigidbody rb;
     private PlayerScore playerScore;
+    private GroundCheck groundCheck;
     private Transform partsParent;
 
+    [SerializeField] private LayerMask layerMask;
     [SerializeField] private float bounceForce = 100;
+    //[SerializeField] private float angleToSurviveDeath = 15;
     private Vector3 startPos;
-    private bool destroying = false;
+
+    private Vector3 checkPos;
+    private float checkRadius;
 
     // Start is called before the first frame update
     void Start()
@@ -18,6 +23,7 @@ public class PlayerCollision: MonoBehaviour
         startPos = transform.position;
         rb = GetComponent<Rigidbody>();
         playerScore = GetComponent<PlayerScore>();
+        groundCheck = GetComponent<GroundCheck>();
         partsParent = FindObjectOfType<LevelMaker>().transform;
     }
 
@@ -25,28 +31,60 @@ public class PlayerCollision: MonoBehaviour
     {
         if (playerScore.ComboCounter > 1)
         {
-            destroying = true;
-
-            int partsToDestroy = playerScore.ComboCounter - 1;
-
             if (collider.transform.parent == null)
             {
                 return;
             }
 
-            GameObject part = collider.transform.parent.parent.gameObject;
-            part.SetActive(false);
-            int siblingIndex = part.transform.GetSiblingIndex();
+            int combo = playerScore.ComboCounter - 1;
 
-            if (partsToDestroy == 2)
+            /*Transform part = collider.transform.parent.parent.parent;
+            part.GetChild(0).GetComponent<DestructiblePart>().DestroyPart();
+            part.GetChild(1).GetComponent<DestructiblePart>().DestroyPart();
+            int siblingIndex = part.GetSiblingIndex();
+            int spiral = part.parent.GetSiblingIndex();*/
+
+            //combo = 5;
+
+            if (combo < 5)
             {
-                if (CheckInRange(siblingIndex + 1))
+                Vector3 destroyPos = transform.position;
+                destroyPos.y = collider.transform.position.y;
+
+                checkPos = destroyPos;
+                checkRadius = (float)combo / 10 + 0.3f;
+            }
+            else
+            {
+                checkRadius = 1;
+                Vector3 towerPos = partsParent.parent.position;
+                towerPos.y = collider.transform.position.y;
+                checkPos = towerPos;
+            }
+
+            Collider[] parts = Physics.OverlapSphere(checkPos, checkRadius, layerMask);
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                parts[i].GetComponentInParent<DestructiblePart>().DestroyPart();
+            }
+
+            //partsToDestroy = 5;
+
+            /*if (partsToDestroy == 2)
+            {
+                if (CheckInRange(siblingIndex + 1, spiral))
                 {
-                    partsParent.GetChild(siblingIndex + 1).gameObject.SetActive(false);
+                    Transform selectedPart = partsParent.GetChild(spiral).GetChild(siblingIndex + 1);
+                    Debug.Log("Part is: " + selectedPart);
+                    selectedPart.GetChild(0).GetComponent<DestructiblePart>().DestroyPart();
+                    selectedPart.GetChild(1).GetComponent<DestructiblePart>().DestroyPart();
                 }
-                else if (CheckInRange(siblingIndex - 1))
+                else if (CheckInRange(siblingIndex - 1, spiral))
                 {
-                    partsParent.GetChild(siblingIndex - 1).gameObject.SetActive(false);
+                    Transform selectedPart = partsParent.GetChild(spiral).GetChild(siblingIndex - 1);
+                    selectedPart.GetChild(0).GetComponent<DestructiblePart>().DestroyPart();
+                    selectedPart.GetChild(1).GetComponent<DestructiblePart>().DestroyPart();
                 }
             }
             else if (partsToDestroy > 2)
@@ -56,16 +94,18 @@ public class PlayerCollision: MonoBehaviour
                     int index = 0 - (partsToDestroy - 2);
                     index += i;
 
-                    if (CheckInRange(index))
+                    if (CheckInRange(siblingIndex + index, spiral))
                     {
-                        partsParent.GetChild(index).gameObject.SetActive(false);
+                        Transform selectedPart = partsParent.GetChild(spiral).GetChild(siblingIndex + index);
+                        selectedPart.GetChild(0).GetComponent<DestructiblePart>().DestroyPart();
+                        selectedPart.GetChild(1).GetComponent<DestructiblePart>().DestroyPart();
                     }
                 }
             }
             else if (partsToDestroy >= 5)
             {
-                part.transform.parent.gameObject.SetActive(false);
-            }
+                part.GetComponentInParent<DestroyAllParts>().DestroyAllPartsInSpiral();
+            }*/
 
             rb.velocity = Vector3.zero;
             rb.AddForce(Vector3.up * bounceForce);
@@ -76,21 +116,34 @@ public class PlayerCollision: MonoBehaviour
     {
         if (collision.gameObject.layer == 0)
         {
-            if (!destroying && playerScore.ComboCounter < 2 && collision.gameObject.CompareTag("DeathPart"))
+            if (collision.gameObject.CompareTag("DeathPart"))
             {
-                playerScore.ResetScore();
+                Vector3 dirToPlayer = transform.position - collision.transform.position;
+                dirToPlayer.Normalize();
+
+                Debug.Log("Direction to player: " + dirToPlayer);
+
+                if (playerScore.ComboCounter > 1 && dirToPlayer.y > 0)
+                {
+                    return;
+                }
+                
+                playerScore.ResetLevel();
             }
 
-            destroying = false;
             //rb.AddForce(collision.contacts[0].normal * bounceForce);
+        }
+        else if (collision.gameObject.CompareTag("End"))
+        {
+            GameManager.instance.NextLevel(playerScore.Score);
         }
     }
 
-    private bool CheckInRange(int index)
+    private bool CheckInRange(int index, int spiral)
     {
-        if (index > 0 && index <= partsParent.childCount - 1)
+        if (index > 0 && index <= partsParent.GetChild(spiral).childCount - 2)
         {
-            if (partsParent.GetChild(index).CompareTag("Point"))
+            if (partsParent.GetChild(spiral).GetChild(index).CompareTag("Point"))
             {
                 return false;
             }
@@ -101,5 +154,11 @@ public class PlayerCollision: MonoBehaviour
         {
             return false;
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(checkPos, checkRadius);
     }
 }

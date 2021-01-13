@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 public class PlayerScore : MonoBehaviour
 {
     [SerializeField] private int score = 0;
-    private int savedScore = 0;
     [SerializeField] private int comboCounter = 0;
     public int ComboCounter { get { return comboCounter; } }
     public int Score { get { return score; } }
@@ -30,7 +29,7 @@ public class PlayerScore : MonoBehaviour
         points.AddRange(GameObject.FindGameObjectsWithTag("Point"));
     }
 
-    public void ResetScore()
+    public void ResetLevel()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
@@ -47,7 +46,7 @@ public class PlayerScore : MonoBehaviour
             return;
         }
 
-        GameObject potentialPoint = other.transform.parent.parent.gameObject;
+        GameObject potentialPoint = other.transform.parent.parent.parent.gameObject;
 
         if (potentialPoint.gameObject.CompareTag("Point") && points.Contains(potentialPoint))
         {

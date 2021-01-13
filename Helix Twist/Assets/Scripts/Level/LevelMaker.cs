@@ -50,12 +50,13 @@ public class LevelMaker : MonoBehaviour
     private void ChangePartToPoint(MeshCollider collider)
     {
         collider.isTrigger = true;
-        collider.GetComponent<MeshRenderer>().enabled = false;
+        collider.GetComponent<MeshRenderer>().enabled = false;        
     }
 
     private void ChangeMaterialToDeath(MeshRenderer renderer)
     {
         renderer.material = deathMat;
         renderer.tag = "DeathPart";
+        renderer.GetComponentInParent<DestructiblePart>().ChangeMaterial(deathMat);
     }
 }

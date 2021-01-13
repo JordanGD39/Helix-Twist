@@ -20,7 +20,7 @@ public class CameraFollow : MonoBehaviour
         towerPos.y = target.position.y;
         Vector3 diff = target.position - towerPos;
 
-        Debug.DrawRay(target.position, diff, Color.green);
+        //Debug.DrawRay(target.position, diff, Color.green);
 
         Vector3 targetPos = target.position;
         targetPos += diff * extraPos.z;

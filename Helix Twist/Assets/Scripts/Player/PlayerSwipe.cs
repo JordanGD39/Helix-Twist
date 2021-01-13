@@ -26,10 +26,10 @@ public class PlayerSwipe : MonoBehaviour
     {
         CheckSwipe();
 
-        if (diff != Vector3.zero)
+        /*if (diff != Vector3.zero)
         {
             Debug.DrawRay(transform.position, diff, Color.cyan);
-        }
+        }*/
     }
 
     public void ResetSwipe()
