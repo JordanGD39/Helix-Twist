@@ -58,7 +58,10 @@ public class GameManager : MonoBehaviour
 
         colorThemesList.RemoveAt(0);
 
-        Time.timeScale = 0;
+        if (SceneManager.GetActiveScene().name != "MainMenu")
+        {
+            Time.timeScale = 0;
+        }
     }
 
     public void PlayerDied()
@@ -114,7 +117,7 @@ public class GameManager : MonoBehaviour
 
         bgGolor = currentColorTheme.colors[4];
 
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
 
         Time.timeScale = 0;
     }

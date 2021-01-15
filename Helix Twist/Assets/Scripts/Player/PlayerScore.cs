@@ -6,11 +6,13 @@ using UnityEngine.SceneManagement;
 public class PlayerScore : MonoBehaviour
 {
     [SerializeField] private int score = 0;
+    private int highScore = 0;
     [SerializeField] private int comboCounter = 0;
     public int ComboCounter { get { return comboCounter; } }
     public int Score { get { return score; } }
 
     private PlayerSwipe playerSwipe;
+    private PlayerSoundEffects playerSound;
     private HUD ui;
 
     private float lastYposWhenEarningPoint;
@@ -20,8 +22,10 @@ public class PlayerScore : MonoBehaviour
 
     private void Start()
     {
+        highScore = PlayerPrefs.GetInt("highScore", 0);
         lastYposWhenEarningPoint = transform.position.y;
         playerSwipe = GetComponent<PlayerSwipe>();
+        playerSound = GetComponent<PlayerSoundEffects>();
         ui = FindObjectOfType<HUD>();
         score = GameManager.instance.SavedScore;
         ui.UpdateScore(score);
@@ -59,6 +63,14 @@ public class PlayerScore : MonoBehaviour
             points.Remove(potentialPoint);
             comboCounter++;            
             score += comboCounter;
+            playerSound.PlayPointSound();
+
+            if (score > highScore)
+            {
+                highScore = score;
+                PlayerPrefs.SetInt("highScore", highScore);
+            }
+
             ui.UpdateScore(score);
             playerSwipe.ResetSwipe();
         }

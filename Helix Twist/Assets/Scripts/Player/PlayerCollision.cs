@@ -6,6 +6,7 @@ public class PlayerCollision: MonoBehaviour
 {
     private Rigidbody rb;
     private PlayerScore playerScore;
+    private PlayerSoundEffects playerSound;
     private GroundCheck groundCheck;
     private Transform partsParent;
     private ParticleSystem ps;
@@ -28,6 +29,7 @@ public class PlayerCollision: MonoBehaviour
         rb = GetComponent<Rigidbody>();
         ui = FindObjectOfType<HUD>();
         playerScore = GetComponent<PlayerScore>();
+        playerSound = GetComponent<PlayerSoundEffects>();
         groundCheck = GetComponent<GroundCheck>();
         partsParent = FindObjectOfType<LevelMaker>().transform;
         meshRenderer = GetComponentInChildren<MeshRenderer>();
@@ -69,6 +71,15 @@ public class PlayerCollision: MonoBehaviour
 
                 checkPos = destroyPos;
                 checkRadius = (float)combo / 10 + 0.3f;
+
+                if (combo <= 2)
+                {
+                    playerSound.PlayBreakingSound(0);
+                }
+                else
+                {
+                    playerSound.PlayBreakingSound(1);
+                }
             }
             else
             {
@@ -76,6 +87,7 @@ public class PlayerCollision: MonoBehaviour
                 Vector3 towerPos = partsParent.parent.position;
                 towerPos.y = collider.transform.position.y;
                 checkPos = towerPos;
+                playerSound.PlayBreakingSound(2);
             }
 
             Collider[] parts = Physics.OverlapSphere(checkPos, checkRadius, layerMask);
@@ -144,17 +156,15 @@ public class PlayerCollision: MonoBehaviour
     {
         if (collision.gameObject.layer == 0)
         {
+            if (playerScore.ComboCounter > 1)
+            {
+                CheckDestroyParts(collision.collider);
+                return;
+            }
+
             if (collision.gameObject.CompareTag("DeathPart"))
             {
-                Vector3 dirToPlayer = transform.position - collision.transform.position;
-                dirToPlayer.Normalize();
-
-                //Debug.Log("Direction to player: " + dirToPlayer);
-
-                if (playerScore.ComboCounter > 1 && dirToPlayer.y > 0)
-                {
-                    return;
-                }
+                //Debug.Log("Direction to player: " + dirToPlayer);                
 
                 meshRenderer.enabled = false;
                 trail.gameObject.SetActive(false);
@@ -162,8 +172,11 @@ public class PlayerCollision: MonoBehaviour
                 rb.isKinematic = true;
                 ps.Play();
                 Invoke("Die", 2);
+                playerSound.PlayDeathSound();
+                return;
             }
 
+            playerSound.PlayLandingSound();
             //rb.AddForce(collision.contacts[0].normal * bounceForce);
         }
         else if (collision.gameObject.CompareTag("End"))
