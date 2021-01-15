@@ -11,13 +11,19 @@ public class HUD : MonoBehaviour
     [SerializeField] private TextMeshProUGUI startScoreText;
     [SerializeField] private TextMeshProUGUI highScoreText;
     [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private TextMeshProUGUI levelCompleteText;
     [SerializeField] private GameObject levelPanel;
     [SerializeField] private GameObject pauseButton;
     [SerializeField] private GameObject pausePanel;
+    [SerializeField] private TextMeshProUGUI[] comboTexts;
+
+    private int comboIndex = 0;
+
     public GameObject LevelPanel { get { return levelPanel; } }
     private Animator anim;
     public bool died = false;
     public bool mainMenu = false;
+    public bool startingNextLevel = false;
 
     private int score = 0;
 
@@ -31,6 +37,39 @@ public class HUD : MonoBehaviour
         levelText.text = (GameManager.instance.Level + 1).ToString();
         startScoreText.text = GameManager.instance.SavedScore.ToString();
         highScoreText.text = PlayerPrefs.GetInt("highScore", 0).ToString();
+    }
+
+    public void ShowCombo(int combo)
+    {
+        TextMeshProUGUI comboText = comboTexts[comboIndex];
+
+        comboText.gameObject.SetActive(false);
+        comboText.text = "+" + combo;
+        comboText.gameObject.SetActive(true);
+
+        comboIndex++;
+
+        if (comboIndex > comboTexts.Length - 1)
+        {
+            comboIndex = 0;
+        }
+    }
+
+    public void ShowLevelCompleteText(int i)
+    {
+        if (startingNextLevel)
+        {
+            return;
+        }
+
+        startingNextLevel = true;
+        levelCompleteText.text = "Level " + i + " complete!";
+        anim.Play("LevelComplete");
+    }
+
+    public void StartNextLevel()
+    {
+        StartFade(false);
     }
 
     public void RemoveStartPanel()

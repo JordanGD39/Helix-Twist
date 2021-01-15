@@ -13,6 +13,8 @@ public class MainMenu : MonoBehaviour
     {
         anim = GetComponent<Animator>();
         helpPanel.SetActive(false);
+
+        Time.timeScale = 1;
     }
 
     public void Play()

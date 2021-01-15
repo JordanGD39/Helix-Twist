@@ -13,7 +13,7 @@ public class PlayerScore : MonoBehaviour
 
     private PlayerSwipe playerSwipe;
     private PlayerSoundEffects playerSound;
-    private HUD ui;
+    private HUD ui;    
 
     private float lastYposWhenEarningPoint;
 
@@ -26,7 +26,7 @@ public class PlayerScore : MonoBehaviour
         lastYposWhenEarningPoint = transform.position.y;
         playerSwipe = GetComponent<PlayerSwipe>();
         playerSound = GetComponent<PlayerSoundEffects>();
-        ui = FindObjectOfType<HUD>();
+        ui = FindObjectOfType<HUD>();        
         score = GameManager.instance.SavedScore;
         ui.UpdateScore(score);
     }
@@ -43,7 +43,7 @@ public class PlayerScore : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.transform.parent == null)
+        if (other.transform.parent == null || other.gameObject.layer != 0)
         {
             return;
         }
@@ -62,7 +62,7 @@ public class PlayerScore : MonoBehaviour
             lastYposWhenEarningPoint = transform.position.y;
             points.Remove(potentialPoint);
             comboCounter++;            
-            score += comboCounter;
+            score += comboCounter;            
             playerSound.PlayPointSound();
 
             if (score > highScore)
@@ -72,6 +72,7 @@ public class PlayerScore : MonoBehaviour
             }
 
             ui.UpdateScore(score);
+            ui.ShowCombo(comboCounter);            
             playerSwipe.ResetSwipe();
         }
     }

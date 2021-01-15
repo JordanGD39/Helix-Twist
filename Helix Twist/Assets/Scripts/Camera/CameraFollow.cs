@@ -33,7 +33,7 @@ public class CameraFollow : MonoBehaviour
         Vector3 adjustedPos = extraPos;
         adjustedPos.z = 0;
 
-        transform.position = targetPos + adjustedPos;
-        transform.LookAt(target.position);
+        transform.parent.position = targetPos + adjustedPos;
+        transform.parent.LookAt(target.position);
     }
 }

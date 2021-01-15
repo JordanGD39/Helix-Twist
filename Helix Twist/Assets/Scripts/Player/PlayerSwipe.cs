@@ -41,9 +41,9 @@ public class PlayerSwipe : MonoBehaviour
 
     private void CheckSwipe()
     {
-        if (canSwipe && Input.GetMouseButton(0) /*Input.touchCount > 0*/)
+        if (canSwipe && Input.touchCount > 0 /*Input.GetMouseButton(0)*/)
         {
-            Vector2 mousePos = Input.mousePosition;/*Input.GetTouch(0).position*/
+            Vector2 mousePos = Input.GetTouch(0).position; /*Input.mousePosition;*/
 
             if (firstTouch)
             {

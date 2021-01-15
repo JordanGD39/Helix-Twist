@@ -13,6 +13,7 @@ public class PlayerCollision: MonoBehaviour
     private MeshRenderer meshRenderer;
     private TrailRenderer trail;
     private HUD ui;
+    private CameraShake camShake;
 
     [SerializeField] private LayerMask layerMask;
     [SerializeField] private float bounceForce = 100;
@@ -28,6 +29,7 @@ public class PlayerCollision: MonoBehaviour
         startPos = transform.position;
         rb = GetComponent<Rigidbody>();
         ui = FindObjectOfType<HUD>();
+        camShake = FindObjectOfType<CameraShake>();
         playerScore = GetComponent<PlayerScore>();
         playerSound = GetComponent<PlayerSoundEffects>();
         groundCheck = GetComponent<GroundCheck>();
@@ -75,11 +77,13 @@ public class PlayerCollision: MonoBehaviour
                 if (combo <= 2)
                 {
                     playerSound.PlayBreakingSound(0);
+                    StartCoroutine(camShake.Shake(0.1f, 0.05f));
                 }
                 else
                 {
                     playerSound.PlayBreakingSound(1);
-                }
+                    StartCoroutine(camShake.Shake(0.1f, 0.1f));
+                }                
             }
             else
             {
@@ -88,6 +92,7 @@ public class PlayerCollision: MonoBehaviour
                 towerPos.y = collider.transform.position.y;
                 checkPos = towerPos;
                 playerSound.PlayBreakingSound(2);
+                StartCoroutine(camShake.Shake(0.1f, 0.2f));
             }
 
             Collider[] parts = Physics.OverlapSphere(checkPos, checkRadius, layerMask);
@@ -181,7 +186,8 @@ public class PlayerCollision: MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("End"))
         {
-            ui.StartFade(false);
+            ui.ShowLevelCompleteText(GameManager.instance.Level + 1);
+            playerScore.ResetCombo();
         }
     }
 
